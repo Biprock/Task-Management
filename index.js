@@ -1,3 +1,6 @@
+let globalTaskData = [];
+taskContents = document.getElementById("taskContents");
+
 const addCard =() => {
     const newTaskDetails = {
         id : `${Date.now()}`,
@@ -7,8 +10,11 @@ const addCard =() => {
         description: document.getElementById("taskDescription").value 
         
     };
-    taskContents = document.getElementById("taskContents");
+    
     taskContents.insertAdjacentHTML('beforeend',generateTaskCard(newTaskDetails));
+
+    globalTaskData.push(newTaskDetails);
+    saveToLocalStorage();
     
 }
 const generateTaskCard = ({id,url,title,type,description}) => {
@@ -19,8 +25,8 @@ const generateTaskCard = ({id,url,title,type,description}) => {
              <button type="button" class="btn btn-outline-info">
                  <i class="fas fa-pencil-alt"></i>
                 </button>
-                <button type="button" class="btn btn-outline-danger">
-                <i class="fas fa-trash-alt"></i>
+                <button type="button" class="btn btn-outline-danger" name = ${id} onclick = "deleteTask(this)">
+                <i class="fas fa-trash-alt" name=${id} onclick = "deleteTask(this)"></i>
                 </button>
             </div>
             
@@ -37,4 +43,29 @@ const generateTaskCard = ({id,url,title,type,description}) => {
     </div>
    </div>`)
     
+}
+
+const saveToLocalStorage = () =>{
+      localStorage.setItem("Tasky",JSON.stringify({tasks:globalTaskData}));
+
+}
+
+const reloadTaskCard = () =>{
+    const localStorageCopy = JSON.parse(localStorage.getItem("Tasky"));
+    console.log(localStorageCopy);
+    if(localStorageCopy)
+    {
+        globalTaskData=localStorageCopy.tasks;
+    }
+    globalTaskData.map((cardData) =>{
+        taskContents.insertAdjacentHTML('beforeend',generateTaskCard(cardData));
+    })
+
+}
+
+const deleteTask=(e) => {
+    const targetID = e.getAttribute("name");
+    globalTaskData = globalTaskData.filter((cardData)=> cardData.id!==targetID);
+    saveToLocalStorage();
+    window.location.reload();
 }
